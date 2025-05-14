@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Mensageiro Web</title>
+    <style>
+        body {
+            font-family: 'Arial', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #4c9495;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            margin-top: 40px;
+            color: #0d1c2b;
+        }
+
+        form {
+            background: #07283c;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(6, 63, 31, 0.1);
+            margin-top: 20px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #7db2e6;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        button {
+            background-color: #27ae60;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #219150;
+        }
+
+        #resposta {
+            margin-top: 30px;
+            padding: 20px;
+            background: #7db2e6;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>📚 PROJETO NAP II</h1>
+
+    <form id="form">
+        <label for="nome">Nome:</label><br>
+        <input type="text" id="nome" name="nome" required><br>
+
+        <label for="mensagem">Mensagem:</label><br>
+        <input type="text" id="mensagem" name="mensagem" required><br>
+
+        <button type="submit">Enviar</button>
+    </form>
+
+    <div id="resposta" style="display:none;"></div>
+
+<script>
+    const form = document.getElementById('form');
+    const respostaDiv = document.getElementById('resposta');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const nome = document.getElementById('nome').value;
+        const mensagem = document.getElementById('mensagem').value;
+
+        try {
+            // Envia para o servidor Flask
+            const response = await fetch('http://127.0.0.1:5000/mensagem', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    nome: nome,
+                    mensagem: mensagem
+                })
+            });
+
+            const data = await response.json();
+            
+            // Mostra a resposta do servidor
+            respostaDiv.style.display = 'block';
+            respostaDiv.innerHTML = `<strong>${data.mensagem}</strong>`;
+            
+            // Opcional: Atualiza a lista de mensagens
+            atualizarMensagens();
+            
+        } catch (error) {
+            respostaDiv.style.display = 'block';
+            respostaDiv.innerHTML = `<strong>Erro: ${error.message}</strong>`;
+        }
+
+        form.reset();
+    });
+
+    // Função para buscar e mostrar todas as mensagens
+    async function atualizarMensagens() {
+        const response = await fetch('http://127.0.0.1:5000/mensagens');
+        const mensagens = await response.json();
+        console.log('Todas as mensagens:', mensagens);
+    }
+</script>
+
+</body>
+</html>
